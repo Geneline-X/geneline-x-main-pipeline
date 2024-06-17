@@ -1,0 +1,31 @@
+{
+  "name": "cph-main-pipeline",
+  "version": "1.0.0",
+  "description": "This is the main file processing server",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dennis2340/cph-main-pipeline.git"
+  },
+  "keywords": [
+    "pipeline",
+    "processing"
+  ],
+  "author": "Dennis Stephen Kamara",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dennis2340/cph-main-pipeline/issues"
+  },
+  "homepage": "https://github.com/Dennis2340/cph-main-pipeline#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.3"
+  }
+}
