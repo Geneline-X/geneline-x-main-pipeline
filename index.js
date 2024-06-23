@@ -3,6 +3,8 @@ import express from "express";
 import cluster from "cluster";
 import os from "os";
 import uploadrouter from "./Routes/uploadRoute.js";
+import cors from "cors"
+import { corsOption } from "./Config/corsOption.js";
 
 config();
 
@@ -26,6 +28,7 @@ if (cluster.isMaster) {
   // Workers can share any TCP connection
   // In this case, it is an HTTP server
   app.use(express.json());
+  app.use(cors(corsOption))
   app.use("/file-upload", uploadrouter);
 
   app.listen(PORT, () => {

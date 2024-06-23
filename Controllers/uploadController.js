@@ -12,7 +12,7 @@ import { audioPrompts, imagePrompts, videoPrompts } from "../Utils/prompts.js";
 export async function uploadImageAndVectorize(request, res){
     try {
         
-        const { createdFile } = request.body;
+        const { createdFile, mimeType } = request.body;
         const response = await fetch(
           `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`
         );
@@ -33,7 +33,7 @@ export async function uploadImageAndVectorize(request, res){
         
             // Step 3: Upload the file using uploadFile
         const uploadResult = await fileManager.uploadFile(tempFilePath, {
-          mimeType: (await response.blob()).type,
+          mimeType: `image/${mimeType}`,
           displayName: createdFile.name,
         });
 
@@ -59,6 +59,8 @@ export async function uploadImageAndVectorize(request, res){
          await processBatchText({ batch, startIndex, createdFile});
        }
        console.log("Image Vectorization and Indexing complete!");
+       await fileManager.deleteFile(uploadResult.file.name);
+
        res.status(200).json({message: "Image Vectorization and Indexing complete!"});
     } catch (error) {
         console.log(error)
@@ -68,7 +70,7 @@ export async function uploadImageAndVectorize(request, res){
 
 export async function uploadVideoAndVectorize(request, res) {
   try {
-    const { createdFile } = request.body;
+    const { createdFile, mimeType} = request.body;
     const videoUrl =  `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`;
     const response = await fetch(videoUrl);
     
@@ -89,7 +91,7 @@ export async function uploadVideoAndVectorize(request, res) {
 
     // Step 3: Upload the file using uploadFile
     const uploadResult = await fileManager.uploadFile(tempFilePath, {
-      mimeType: 'video/mp4',
+      mimeType: `video/${mimeType}`,
       displayName: createdFile.name,
     });
 
@@ -126,7 +128,7 @@ export async function uploadVideoAndVectorize(request, res) {
     });
     //  delete the file in the api
     await fileManager.deleteFile(uploadResult.file.name);
-
+    res.status(200).json({message: "vectorization completed"})
   } catch (error) {
     // Handle errors
     console.error('Error processing the video:', error);
@@ -135,7 +137,7 @@ export async function uploadVideoAndVectorize(request, res) {
 }
 export async function uploadAudioAndVectorize(request, res) {
   try {
-    const { createdFile } = request.body;
+    const { createdFile, mimeType} = request.body;
     const audioUrl =  `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`;
     const response = await fetch(audioUrl);
     
@@ -156,7 +158,7 @@ export async function uploadAudioAndVectorize(request, res) {
 
     // Step 3: Upload the file using uploadFile
     const uploadResult = await fileManager.uploadFile(tempFilePath, {
-      mimeType: (await response.blob()).type,
+      mimeType: `audio/${mimeType}`,
       displayName: createdFile.name,
     });
 
@@ -193,7 +195,7 @@ export async function uploadAudioAndVectorize(request, res) {
     });
     //  delete the file in the api
     await fileManager.deleteFile(uploadResult.file.name);
-
+    res.status(200).join({message: "vectorization completed"})
   } catch (error) {
     // Handle errors
     console.error('Error processing the video:', error);
