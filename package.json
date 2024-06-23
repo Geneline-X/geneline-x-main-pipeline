@@ -1,5 +1,5 @@
 {
-  "name": "cph-main-pipeline",
+  "name": "geneline-x-main-pipeline",
   "version": "1.0.0",
   "description": "This is the main file processing server",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dennis2340/cph-main-pipeline.git"
+    "url": "git+https://github.com/Geneline-X/geneline-x-main-pipeline.git"
   },
   "keywords": [
     "pipeline",
@@ -19,9 +19,9 @@
   "author": "Dennis Stephen Kamara",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Dennis2340/cph-main-pipeline/issues"
+    "url": "https://github.com/Geneline-X/geneline-x-main-pipeline/issues"
   },
-  "homepage": "https://github.com/Dennis2340/cph-main-pipeline#readme",
+  "homepage": "https://github.com/Geneline-X/geneline-x-main-pipeline#readme",
   "dependencies": {
     "@google/generative-ai": "^0.12.0",
     "@langchain/community": "^0.2.12",
