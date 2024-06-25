@@ -1,5 +1,5 @@
 
-const allowedOrigins = ['http://localhost:3000', 'https://xplain-ai.net']
+const allowedOrigins = ['http://localhost:3000','http://localhost:3001', 'https://xplain-ai.net']
 
 export const corsOption = {
     origin: (origin, callback) => {

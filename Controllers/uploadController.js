@@ -64,7 +64,7 @@ export async function uploadImageAndVectorize(request, res){
        res.status(200).json({message: "Image Vectorization and Indexing complete!"});
     } catch (error) {
         console.log(error)
-        res.status(500).json({message: "error occured"})
+        res.status(500).json({message: error.message})
     }
 }
 
@@ -132,12 +132,12 @@ export async function uploadVideoAndVectorize(request, res) {
   } catch (error) {
     // Handle errors
     console.error('Error processing the video:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({message: error.message})
   }
 }
 export async function uploadAudioAndVectorize(request, res) {
   try {
-    const { createdFile, mimeType} = request.body;
+    const { createdFile, mimeType, fileContent} = request.body;
     const audioUrl =  `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`;
     const response = await fetch(audioUrl);
     
@@ -195,11 +195,11 @@ export async function uploadAudioAndVectorize(request, res) {
     });
     //  delete the file in the api
     await fileManager.deleteFile(uploadResult.file.name);
-    res.status(200).join({message: "vectorization completed"})
+    res.status(200).json({message: "vectorization completed"})
   } catch (error) {
     // Handle errors
     console.error('Error processing the video:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({message: error.message})
   }
 }
 
@@ -230,6 +230,7 @@ export async function uploadPdfAndVectorize(request, res){
       console.log("PDF Vectorization and Indexing complete!");
 
     } catch (error) {
+      res.status(500).json({message: error.message})
         console.log(error)
     }
 }
