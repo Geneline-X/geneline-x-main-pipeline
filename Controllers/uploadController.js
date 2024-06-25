@@ -18,7 +18,7 @@ export async function uploadImageAndVectorize(request, res){
         );
               // Ensure the fetch was successful
         if (!response.ok) {
-          throw new Error(`Failed to fetch video: ${response.statusText}`);
+          throw new Error(`Failed to fetch image: ${response.statusText}`);
         }
 
         // Step 2: Write the fetched video file to a temporary location on the disk
