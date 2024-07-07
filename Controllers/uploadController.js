@@ -13,10 +13,11 @@ export async function uploadImageAndVectorize(request, res){
     try {
         
         const { createdFile, mimeType } = request.body;
+        
         const response = await fetch(
-          `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`
+           `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`
         );
-              // Ensure the fetch was successful
+              // Ensure the fetch was successful 
         if (!response.ok) {
           throw new Error(`Failed to fetch image: ${response.statusText}`);
         }
