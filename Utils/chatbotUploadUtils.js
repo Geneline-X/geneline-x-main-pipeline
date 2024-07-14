@@ -21,6 +21,7 @@ import { model } from "../Config/gemini.js";
             const pageData = {
                 pageText: text,
                 embedding: pageEmbedding,
+                textUrl: createdFile.Url
             };
 
             // Add the page data to the Firestore batch
@@ -66,6 +67,7 @@ export const processChatbotBatch = async ({batch, startIndex, createdFile, retry
             const pageData = {
               pageText,
               embedding: pageEmbedding,
+              textUrl: createdFile.Url
             };
         
             const docRef = doc(collection(vectordb, chatbotName), pageId);
