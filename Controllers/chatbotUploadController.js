@@ -14,7 +14,7 @@ export async function uploadImageAndVectorize(request, res){
         
         const { createdFile, mimeType, chatbotName } = request.body;
         const response = await fetch(
-           createdFile.url
+          `https://utfs.io/f/${createdFile.key}`
         );
               // Ensure the fetch was successful 
         if (!response.ok) {
@@ -72,7 +72,7 @@ export async function uploadVideoAndVectorize(request, res) {
     try {
       const { createdFile, mimeType, chatbotName} = request.body;
       
-      const response = await fetch(createdFile.url);
+      const response = await fetch(`https://utfs.io/f/${createdFile.key}`);
       
       // Ensure the fetch was successful
       if (!response.ok) {
@@ -140,7 +140,7 @@ export async function uploadAudioAndVectorize(request, res) {
     try {
       const { createdFile, mimeType, chatbotName} = request.body;
     
-      const response = await fetch(createdFile.url);
+      const response = await fetch(`https://utfs.io/f/${createdFile.key}`);
       
       // Ensure the fetch was successful
       if (!response.ok) {
@@ -209,7 +209,7 @@ export async function uploadPdfAndVectorize(request, res){
         const { createdFile, chatbotName } = request.body
 
         const response = await fetch(
-        createdFile.url
+        `https://utfs.io/f/${createdFile.key}`
         );
         const blob = await response.blob();
 

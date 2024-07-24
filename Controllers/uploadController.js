@@ -8,6 +8,7 @@ import path from "path"
 import os from "os"
 import fetch from "node-fetch"
 import { audioPrompts, imagePrompts, videoPrompts } from "../Utils/prompts.js";
+import axios from "axios";
 
 export async function uploadImageAndVectorize(request, res){
     try {
@@ -15,7 +16,7 @@ export async function uploadImageAndVectorize(request, res){
         const { createdFile, mimeType } = request.body;
         
         const response = await fetch(
-           `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`
+           `https://utfs.io/f/${createdFile.key}`
         );
               // Ensure the fetch was successful 
         if (!response.ok) {
@@ -72,7 +73,7 @@ export async function uploadImageAndVectorize(request, res){
 export async function uploadVideoAndVectorize(request, res) {
   try {
     const { createdFile, mimeType} = request.body;
-    const videoUrl =  `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`;
+    const videoUrl =  `https://utfs.io/f/${createdFile.key}`;
     const response = await fetch(videoUrl);
     
     // Ensure the fetch was successful
@@ -139,7 +140,7 @@ export async function uploadVideoAndVectorize(request, res) {
 export async function uploadAudioAndVectorize(request, res) {
   try {
     const { createdFile, mimeType, fileContent} = request.body;
-    const audioUrl =  `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`;
+    const audioUrl =  `https://utfs.io/f/${createdFile.key}`;
     const response = await fetch(audioUrl);
     
     // Ensure the fetch was successful
@@ -208,13 +209,15 @@ export async function uploadPdfAndVectorize(request, res){
     try {
         const { createdFile } = request.body
 
+        console.log("this is the created file url: ", createdFile.url)
         const response = await fetch(
-        `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${createdFile.key}`
-        );
+          `https://utfs.io/f/${createdFile.key}`
+       );
+       
         const blob = await response.blob();
-
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
+        
               // Process pages in batches
         const batchSize = 50; 
 
