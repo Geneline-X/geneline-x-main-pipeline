@@ -4,7 +4,7 @@ import uploadrouter from "./Routes/uploadRoute.js";
 import chatbotuploadrouter from "./Routes/chatbotUploadRoute.js";
 import cors from "cors";
 import { corsOption } from "./Config/corsOption.js";
-
+import guidedconvorouter from "./Routes/guidedConvoRoute.js"
 config();
 
 const app = express();
@@ -16,6 +16,8 @@ app.use(cors(corsOption));
 // this is route is for xplain-ai //
 app.use("/file-upload", uploadrouter);
 app.use("/chatbot-upload", chatbotuploadrouter)
+app.use("/guided-convo", guidedconvorouter)
+
 app.listen(PORT, () => {
   console.log(`Worker ${process.pid} started at port: ${PORT}`);
 });

@@ -209,7 +209,6 @@ export async function uploadPdfAndVectorize(request, res){
     try {
         const { createdFile } = request.body
 
-        console.log("this is the created file url: ", createdFile.url)
         const response = await fetch(
           `https://utfs.io/f/${createdFile.key}`
        );

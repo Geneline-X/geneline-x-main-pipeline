@@ -1,4 +1,9 @@
-import { processChatbotBatchText, processChatbotBatch } from "../Utils/chatbotUploadUtils.js";
+import { 
+  processChatbotBatchText, 
+  processChatbotBatch, 
+  fetchStoredGuidedConversations, 
+  storeGuidedConversations, 
+  processGuidedConversations } from "../Utils/chatbotUploadUtils.js";
 import { splitTextIntoChunks } from "../Utils/mainUtils.js";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { fileManager } from "../Config/gemini.js";
@@ -235,3 +240,39 @@ export async function uploadPdfAndVectorize(request, res){
         console.log(error)
     }
 }
+
+export async function uploadTextAndVectorize(request, res) {
+  try {
+    const { text, chatbotName, mode, conversations } = request.body;
+
+    if (mode === 'random') {
+      const textChunks = splitTextIntoChunks(text, 1000);
+      const batchSize = 50;
+
+      for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
+        const batch = textChunks.slice(startIndex, startIndex + batchSize);
+        await processChatbotBatchText({ batch, startIndex, createdFile: { key: 'text' }, chatbotName });
+      }
+
+      res.status(200).json({ message: "Random Text Vectorization and Indexing complete!" });
+    } else if (mode === 'guided') {
+      await storeGuidedConversations(conversations, chatbotName);
+
+      const textChunks = conversations.map(conv => `${conv.question}: ${conv.answer}`);
+      const batchSize = 50;
+
+      for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
+        const batch = textChunks.slice(startIndex, startIndex + batchSize);
+        await processGuidedConversations({ batch, startIndex, createdFile: { key: 'text' }, chatbotName });
+      }
+
+      res.status(200).json({ message: "Guided Conversation Vectorization and Indexing complete!" });
+    } else {
+      throw new Error("Invalid mode provided");
+    }
+  } catch (error) {
+    console.error('Error processing text:', error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
