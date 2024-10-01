@@ -17,7 +17,7 @@ import { llm, model } from "../Config/gemini.js";
 export async function uploadImageAndVectorize(request, res){
     try {
         
-        const { createdFile, mimeType, chatbotName } = request.body;
+        const { createdFile, mimeType, chatbotName, chatbotId } = request.body;
         const response = await fetch(
           `https://utfs.io/f/${createdFile.key}`
         );
@@ -61,7 +61,7 @@ export async function uploadImageAndVectorize(request, res){
 
        for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
          const batch = textChunks.slice(startIndex, startIndex + batchSize);
-         await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName});
+         await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName, chatbotId});
        }
        console.log("Image Vectorization and Indexing complete!");
        await fileManager.deleteFile(uploadResult.file.name);
@@ -75,7 +75,7 @@ export async function uploadImageAndVectorize(request, res){
 
 export async function uploadVideoAndVectorize(request, res) {
     try {
-      const { createdFile, mimeType, chatbotName} = request.body;
+      const { createdFile, mimeType, chatbotName, chatbotId} = request.body;
       
       const response = await fetch(`https://utfs.io/f/${createdFile.key}`);
       
@@ -119,7 +119,7 @@ export async function uploadVideoAndVectorize(request, res) {
   
       for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
         const batch = textChunks.slice(startIndex, startIndex + batchSize);
-        await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName});
+        await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName, chatbotId});
       }
       console.log("video Vectorization and Indexing complete!");
   
@@ -143,7 +143,7 @@ export async function uploadVideoAndVectorize(request, res) {
 
 export async function uploadAudioAndVectorize(request, res) {
     try {
-      const { createdFile, mimeType, chatbotName} = request.body;
+      const { createdFile, mimeType, chatbotName, chatbotId} = request.body;
     
       const response = await fetch(`https://utfs.io/f/${createdFile.key}`);
       
@@ -187,7 +187,7 @@ export async function uploadAudioAndVectorize(request, res) {
   
       for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
         const batch = textChunks.slice(startIndex, startIndex + batchSize);
-        await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName});
+        await processChatbotBatchText({ batch, startIndex, createdFile, chatbotName, chatbotId});
       }
       console.log("audio Vectorization and Indexing complete!");
   
@@ -211,8 +211,9 @@ export async function uploadAudioAndVectorize(request, res) {
 
 export async function uploadPdfAndVectorize(request, res){
     try {
-        const { createdFile, chatbotName } = request.body
+        const { createdFile, chatbotName, chatbotId } = request.body
 
+        console.log(chatbotId)
         const response = await fetch(
         `https://utfs.io/f/${createdFile.key}`
         );
@@ -230,11 +231,11 @@ export async function uploadPdfAndVectorize(request, res){
           const batch = pageLevelDocs.slice(startIndex, startIndex + batchSize);
 
           // process the pages by batches ///
-          await processChatbotBatch({batch, startIndex, createdFile, chatbotName});
+          await processChatbotBatch({batch, startIndex, createdFile, chatbotName, chatbotId});
         }
     
       console.log("PDF Vectorization and Indexing complete!");
-
+      res.status(200).json({message: 'PDF Vectorization and Indexing complete!'})
     } catch (error) {
       res.status(500).json({message: error.message})
         console.log(error)
@@ -243,7 +244,7 @@ export async function uploadPdfAndVectorize(request, res){
 
 export async function uploadTextAndVectorize(request, res) {
   try {
-    const { text, chatbotName, mode, conversations } = request.body;
+    const { text, chatbotName, mode, conversations, chatbotId } = request.body;
 
     if (mode === 'random') {
       const textChunks = splitTextIntoChunks(text, 1000);
@@ -251,19 +252,24 @@ export async function uploadTextAndVectorize(request, res) {
 
       for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
         const batch = textChunks.slice(startIndex, startIndex + batchSize);
-        await processChatbotBatchText({ batch, startIndex, createdFile: { key: 'text' }, chatbotName });
+        await processChatbotBatchText({ batch, startIndex, createdFile: { key: 'text' }, chatbotName, chatbotId });
       }
 
       res.status(200).json({ message: "Random Text Vectorization and Indexing complete!" });
     } else if (mode === 'guided') {
-      await storeGuidedConversations(conversations, chatbotName);
+      await storeGuidedConversations(conversations, chatbotName, chatbotId);
 
       const textChunks = conversations.map(conv => `${conv.question}: ${conv.answer}`);
       const batchSize = 50;
 
       for (let startIndex = 0; startIndex < textChunks.length; startIndex += batchSize) {
         const batch = textChunks.slice(startIndex, startIndex + batchSize);
-        await processGuidedConversations({ batch, startIndex, createdFile: { key: 'text' }, chatbotName });
+        await processGuidedConversations({ 
+          batch, 
+          startIndex, 
+          createdFile: { key: 'text' }, 
+          chatbotName, chatbotId 
+        });
       }
 
       res.status(200).json({ message: "Guided Conversation Vectorization and Indexing complete!" });

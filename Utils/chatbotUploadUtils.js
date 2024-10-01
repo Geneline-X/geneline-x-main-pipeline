@@ -27,7 +27,15 @@ export async function fetchStoredGuidedConversations(chatbotName) {
     }
 }
 
-  export const processChatbotBatchText = async ({ batch, startIndex, createdFile, retryCount = 0, maxRetries = 3, chatbotName=""}) => {
+  export const processChatbotBatchText = async ({ 
+    batch, 
+    startIndex, 
+    createdFile, 
+    retryCount = 0, 
+    maxRetries = 3, 
+    chatbotName="",
+    chatbotId
+  }) => {
     try {
         const batchWrite = writeBatch(vectordb);
         const upsertPromises = batch.map(async (text, index) => {
@@ -37,7 +45,7 @@ export async function fetchStoredGuidedConversations(chatbotName) {
             const result = await model.embedContent(text);
             const pageEmbedding = result.embedding.values;
 
-            const pageId = `${chatbotName}-page-${pageIndex}`;
+            const pageId = `${chatbotId}-page-${pageIndex}`;
 
             // Store the embedding for the page 
             // Create the data object for the page embedding
@@ -55,7 +63,7 @@ export async function fetchStoredGuidedConversations(chatbotName) {
             };
 
             // Add the page data to the Firestore batch
-            const docRef = doc(collection(vectordb,chatbotName), pageId);
+            const docRef = doc(collection(vectordb,chatbotId), pageId);
             batchWrite.set(docRef, pageData);
         });
 
@@ -70,7 +78,16 @@ export async function fetchStoredGuidedConversations(chatbotName) {
 
         if (retryCount < maxRetries) {
             console.log(`Retrying batch processing... (${retryCount + 1}/${maxRetries})`);
-            return processChatbotBatchText({ batch, startIndex, createdFile, retryCount: retryCount + 1, maxRetries, chatbotName });
+            return processChatbotBatchText({ 
+              batch, 
+              startIndex, 
+              createdFile, 
+              retryCount: 
+              retryCount + 1, 
+              maxRetries, 
+              chatbotName,
+              chatbotId 
+            });
         } else {
             console.error('Max retries reached. Batch processing failed.');
             throw error;
@@ -79,7 +96,15 @@ export async function fetchStoredGuidedConversations(chatbotName) {
 };
 
 /// process documents by batches ////
-export const processChatbotBatch = async ({batch, startIndex, createdFile, retryCount = 0, maxRetries = 3, chatbotName}) => {
+export const processChatbotBatch = async ({
+  batch, 
+  startIndex, 
+  createdFile, 
+  retryCount = 0, 
+  maxRetries = 3, 
+  chatbotName,
+  chatbotId
+}) => {
     try {
         const batchWrite = writeBatch(vectordb);
         const upsertPromises = batch.map(async (page, index) => {
@@ -90,7 +115,7 @@ export const processChatbotBatch = async ({batch, startIndex, createdFile, retry
           const result = await model.embedContent(pageText);
           const pageEmbedding = result.embedding.values;
 
-          const pageId = `${chatbotName}-page-${pageIndex}`;
+          const pageId = `${chatbotId}-page-${pageIndex}`;
           
           // Store the embedding for the page 
           // Create the data object for the page embedding
@@ -99,8 +124,11 @@ export const processChatbotBatch = async ({batch, startIndex, createdFile, retry
               embedding: pageEmbedding,
               textUrl: `https://utfs.io/f/${createdFile.key}`
             };
-        
-            const docRef = doc(collection(vectordb, chatbotName), pageId);
+            if (!chatbotId) {
+              throw new Error('chatbotId is empty or undefined');
+            }
+            
+            const docRef = doc(collection(vectordb, chatbotId), pageId);
             batchWrite.set(docRef, pageData);   
       });
 
@@ -123,17 +151,17 @@ export const processChatbotBatch = async ({batch, startIndex, createdFile, retry
     }
 };
 
-export async function storeGuidedConversations(conversations, chatbotName) {
+export async function storeGuidedConversations(conversations, chatbotName, chatbotId) {
     try {
       const batchWrite = writeBatch(vectordb);
       console.log(conversations)
       conversations.forEach((conv, index) => {
-        const convId = `${chatbotName}-conv-${index}`;
+        const convId = `${chatbotId}-conv-${index}`;
         const convData = {
           question: conv.question,
           answer: conv.answer,
         };
-        const docRef = doc(collection(vectordb, `${chatbotName}-conversations`), convId);
+        const docRef = doc(collection(vectordb, `${chatbotId}-conversations`), convId);
         batchWrite.set(docRef, convData);
       });
   
@@ -145,7 +173,15 @@ export async function storeGuidedConversations(conversations, chatbotName) {
     }
 }
 
-export async function processGuidedConversations({ batch, startIndex, createdFile, retryCount = 0, maxRetries = 3, chatbotName = "" }) {
+export async function processGuidedConversations({ 
+  batch, 
+  startIndex, 
+  createdFile, 
+  retryCount = 0, 
+  maxRetries = 3, 
+  chatbotName = "",
+  chatbotId 
+}) {
     try {
       const batchWrite = writeBatch(vectordb);
       const upsertPromises = batch.map(async (text, index) => {
@@ -155,7 +191,7 @@ export async function processGuidedConversations({ batch, startIndex, createdFil
         const result = await model.embedContent(text);
         const pageEmbedding = result.embedding.values;
   
-        const pageId = `${chatbotName}-page-${pageIndex}`;
+        const pageId = `${chatbotId}-page-${pageIndex}`;
   
         const pageData = {
           pageText: text,
@@ -164,7 +200,7 @@ export async function processGuidedConversations({ batch, startIndex, createdFil
         };
   
         // Add the page data to the Firestore batch
-        const docRef = doc(collection(vectordb, chatbotName), pageId);
+        const docRef = doc(collection(vectordb, chatbotId), pageId);
         batchWrite.set(docRef, pageData);
       });
   
@@ -179,7 +215,15 @@ export async function processGuidedConversations({ batch, startIndex, createdFil
   
       if (retryCount < maxRetries) {
         console.log(`Retrying batch processing... (${retryCount + 1}/${maxRetries})`);
-        return processGuidedConversations({ batch, startIndex, createdFile, retryCount: retryCount + 1, maxRetries, chatbotName });
+        return processGuidedConversations({ 
+          batch, 
+          startIndex, 
+          createdFile, 
+          retryCount: retryCount + 1, 
+          maxRetries, 
+          chatbotName,
+          chatbotId 
+        });
       } else {
         console.error('Max retries reached. Batch processing failed.');
         throw error;
